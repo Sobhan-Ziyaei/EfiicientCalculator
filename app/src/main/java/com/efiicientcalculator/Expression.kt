@@ -3,8 +3,9 @@ package com.efiicientcalculator
 import java.util.*
 
 class Expression(var infixExpression: MutableList<String>) {
+    private var postfix: String = ""
+    private fun infixToPostfix() {
 
-    private fun infixToPostfix(): String {
         var result = ""
         var stack = Stack<String>()
         for (element in infixExpression) {
@@ -29,24 +30,25 @@ class Expression(var infixExpression: MutableList<String>) {
                 while (stack.isNotEmpty() && precedence(stack.peek()) >= precedence(element)) {
                     result += "${stack.pop()} "
                 }
+                stack.push(element)
             }
         }
         while (stack.isNotEmpty()) {
             result += "${stack.pop()} "
         }
-        return result
+        postfix = result
     }
 
     private fun precedence(operator: String): Int {
         return when (operator) {
-            "*", "/" -> 2
+            "×", "÷" -> 2
             "+", "-" -> 1
             else -> -1
         }
     }
 
-    fun evaluateExpression(postfix: String): Number {
-
+    fun evaluateExpression(): Number {
+        infixToPostfix()
         var i = 0
         val stack = Stack<Double>()
         while (i < postfix.length) {
@@ -64,10 +66,10 @@ class Expression(var infixExpression: MutableList<String>) {
                 val x = stack.pop()
                 val y = stack.pop()
                 when (postfix[i]) {
-                    '*' -> stack.push(x * y)
-                    '/' -> stack.push(x / y)
+                    '×' -> stack.push(x * y)
+                    '÷' -> stack.push(y / x)
                     '+' -> stack.push(x + y)
-                    '-' -> stack.push(x - y)
+                    '-' -> stack.push(y - x)
                 }
             }
             i++
